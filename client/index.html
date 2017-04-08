@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://code.jquery.com/jquery-2.2.0.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="styles.css" />
+    <title>Amne App</title>
+  </head>
+  <body>
+
+  <h1 class="title">Amne App</h1>
+  <form class="rea-fetcher">
+    <h3>Enter 2 addresses to see and rank by total distance all real estate agencies within a 10 mile radius of each location.</h3>
+    <div class="addresses" >
+      <div class="address1">
+        <h2>Address 1:</h2>
+        <label>
+          Street Address:
+          <input
+            name="street"
+            type="text"
+            id="street1"/>
+        </label>
+        <br />
+        <label>
+          City:
+          <input
+            name="city"
+            type="text"
+            id="city1"/>
+        </label>
+        <br />
+        <label>
+          State:
+          <input
+            name="state"
+            type="text"
+            id="state1" />
+        </label>
+        <br />
+        <label>
+          ZIP:
+          <input
+            name="zip"
+            type="number"
+            id="zip1" />
+        </label>
+      </div>
+
+      <br />
+
+      <div class="address2">
+        <h2>Address 2:</h2>
+          <label>
+            Street Address:
+            <input
+              name="street"
+              type="text"
+              id="street2" />
+          </label>
+          <br />
+          <label>
+            City:
+            <input
+              name="city"
+              type="text"
+              id="city2" />
+          </label>
+          <br />
+          <label>
+            State:
+            <input
+              name="state"
+              type="text"
+              id="state2" />
+          </label>
+          <br />
+          <label>
+            ZIP:
+            <input
+              name="zip"
+              type="number"
+              id="zip2" />
+          </label>
+          <br />
+        </div>
+      </div>
+
+      <br />
+
+    <button type="submit">Find Local Real Estate Agencies</button>
+  </form>
+
+  <h2>Real Estate Agencies (in asc. order by total distance):</h2>
+
+  <strong>Address 1: </strong><span id="address1"></span>
+  <br />
+  <strong>Address 2: </strong><span id="address2"></span>
+  <br />
+  <br />
+  <table class="local-rea" border="1px solid black" frame="void" rules="rows"></table>
+
+  <script>
+    $reaFetcher = $('.rea-fetcher');
+    $street1 = $('#street1');
+    $city1 = $('#city1');
+    $state1 = $('#state1');
+    $zip1 = $('#zip1');
+    $street2 = $('#street2');
+    $city2 = $('#city2');
+    $state2 = $('#state2');
+    $zip2 = $('#zip2');
+    $table = $('.local-rea');
+    $address1 = $('#address1');
+    $address2 = $('#address2');
+
+    let address1;
+    let address2;
+
+    function displayLocalREA(rea) {
+      $table.empty();
+      console.log('making a table, address1:', address1, 'address2:', address2);
+      $address1.text(address1);
+      $address2.text(address2);
+
+      console.log('making a table with rea:', rea);
+
+      $table.append('<tr><th>Name</th><th>Distance from Address 1</th><th>Distance from Address 2</th></tr>');
+
+      for (var i = 0; i < rea.length; i++) {
+        $table.append(`<tr><td>${rea[i].name}</td><td>${rea[i].distance1.text}</td><td>${rea[i].distance2.text}</td></tr>`);
+      }
+    }
+
+    // Add listeners
+    $reaFetcher.on('submit', handleSubmit); // Listens for a new repo request being submitted to the server
+
+    function handleSubmit(e) {
+      e.preventDefault();
+
+      address1 = $street1.val() + ', ' + $city1.val() + ', ' + $state1.val() + ', ' + $zip1.val();
+      address2 = $street2.val() + ', ' + $city2.val() + ', ' + $state2.val() + ', ' + $zip2.val();
+
+      let address1param = address1.replace(/ /g, '+');
+      let address2param = address2.replace(/ /g, '+');
+
+      console.log('address1:', address1param);
+      console.log('address2:', address2param);
+
+      if (address1param && address2param) {
+        axios.get(`/fetchLocalRealEstateAgencies/${address1param}/${address2param}`)
+        .then((rea) => {
+          displayLocalREA(rea.data);
+        })
+        .catch((err) => console.error(err));
+      }
+
+      $street1.val('');
+      $city1.val('');
+      $state1.val('');
+      $zip1.val('');
+      $street2.val('');
+      $city2.val('');
+      $state2.val('');
+      $zip2.val('');
+    }
+  </script>
+  </body>
+</html>
